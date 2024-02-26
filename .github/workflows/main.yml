@@ -11,10 +11,12 @@ jobs:
     steps:
       - name: Clone down repository
         uses: actions/checkout@v4       
-      - run: ci/build-app.sh
+      - name: Build application
+        run: ci/build-app.sh
       - name: Test
         run: ci/unit-test-app.sh
-      - uses: actions/upload-artifact@v4
+      - name: Upload repo
+        uses: actions/upload-artifact@v4
         with: 
           name: code
           path: .
@@ -33,19 +35,21 @@ jobs:
           DEFAULT_BRANCH: main
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DISABLE_ERRORS: true  
+          DISABLE_ERRORS: true      
   Docker-image:
     runs-on: ubuntu-latest
     needs: [Build]
     permissions:
       packages: write
     steps:
-      - name: Download code
-        uses: actions/download-artifact@v4
-        with:
-          name: code
-          path: .
-      - name: build docker
-        run: bash ci/build-docker.sh
-      - name: push docker
-        run: bash ci/push-docker.sh
+    - name: Download code
+      uses: actions/download-artifact@v4
+      with:
+        name: code
+        path: .
+    - name: ls
+      run: ls -la ci
+    - name: build docker
+      run: bash ci/build-docker.sh
+    - name: push docker
+      run: bash ci/push-docker.sh
